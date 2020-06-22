@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Mastering_Azure_Kinect/Scenes/Azure_Kinect_Color.unity
+    guid: f441c21c797e23842990f6913c99e64f
   m_configObjects: {}

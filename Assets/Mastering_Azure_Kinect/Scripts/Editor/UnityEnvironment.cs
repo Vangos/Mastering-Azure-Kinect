@@ -1,19 +1,51 @@
-﻿using UnityEditor;
+﻿using System.IO;
+using UnityEditor;
+using UnityEditor.Callbacks;
 using UnityEngine;
 
 [InitializeOnLoadAttribute]
 public class UnityEnvironment : MonoBehaviour
 {
+    private const string Package = "Mastering_Azure_Kinect";
+    private const string Plugins = "Plugins";
+    private const string Plugins64 = "x86_64";
+
     static UnityEnvironment()
     {
-        EditorApplication.playModeStateChanged += LogPlayModeState;
+        string source = Path.Combine(Application.dataPath, Package, Plugins, Plugins64);
+        string destination = Directory.GetParent(Application.dataPath).FullName;
+
+        CopyFiles(source, destination);
     }
 
-    private static void LogPlayModeState(PlayModeStateChange state)
+    [PostProcessBuild(1)]
+    public static void OnPostprocessBuild(BuildTarget target, string pathToBuiltProject)
     {
-        if (state == PlayModeStateChange.EnteredPlayMode)
+        if (target != BuildTarget.StandaloneWindows64)
         {
-            // Copy files
+            Debug.LogError("Only Windows x64 is supported.");
+            return;
+        }
+
+        string source = Path.Combine(Application.dataPath, Package, Plugins, Plugins64);
+        string destination = Directory.GetParent(pathToBuiltProject).FullName;
+
+        CopyFiles(source, destination);
+    }
+
+    private static void CopyFiles(string source, string destination)
+    {
+        foreach (string file in Directory.GetFiles(source))
+        {
+            string name = Path.GetFileName(file);
+            string extension = Path.GetExtension(file);
+
+            if (extension == ".dll" || extension == ".onnx")
+            {
+                string path = Path.Combine(destination, name);
+
+                File.Copy(file, path, true);
+            }
         }
     }
 }
