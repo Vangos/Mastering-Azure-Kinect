@@ -1,13 +1,10 @@
-﻿using Microsoft.Azure.Kinect.Sensor;
+﻿using System;
+using Microsoft.Azure.Kinect.Sensor;
 using UnityEngine;
 
 public class Azure_Kinect_Configuration : MonoBehaviour
 {
-    [SerializeField] private FPS cameraFps = FPS.FPS30;
-    [SerializeField] private ImageFormat colorFormat = ImageFormat.ColorBGRA32;
-    [SerializeField] private ColorResolution colorResolution = ColorResolution.R1080p;
-    [SerializeField] private DepthMode depthMode = DepthMode.NFOV_Unbinned;
-    [SerializeField] private bool syncedImagesOnly = true;
+    [SerializeField] private KinectConfiguration configuration;
 
     private Device kinect;
 
@@ -15,40 +12,54 @@ public class Azure_Kinect_Configuration : MonoBehaviour
     {
         int deviceCount = Device.GetInstalledCount();
 
-        Debug.Log($"Found {deviceCount} devices.");
+        Debug.Log($"Found {deviceCount} device(s).");
 
         if (deviceCount > 0)
         {
             kinect = Device.Open();
 
-            kinect.StartCameras(new DeviceConfiguration
+            string serial = kinect.SerialNum;
+
+            Debug.Log($"Serial number: {serial}");
+
+            try
             {
-                CameraFPS = cameraFps,
-                ColorFormat = colorFormat,
-                ColorResolution = colorResolution,
-                DepthMode = depthMode,
-                SynchronizedImagesOnly = syncedImagesOnly
-            });
+                kinect.StartCameras(new DeviceConfiguration
+                {
+                    CameraFPS = configuration.CameraFps,
+                    ColorFormat = configuration.ColorFormat,
+                    ColorResolution = configuration.ColorResolution,
+                    DepthMode = configuration.DepthMode,
+                    WiredSyncMode = configuration.WiredSyncMode,
+                    SynchronizedImagesOnly = configuration.SynchronizedImagesOnly,
+                    DisableStreamingIndicator = configuration.DisableStreamingIndicator
+                });
+            }
+            catch
+            {
+                Debug.Log("Invalid camera configuration!");
+            }
+
+            kinect.StartImu();
         }
     }
 
     private void Update()
     {
-        if (kinect != null)
+        if (kinect == null) return;
+        if (kinect.CurrentColorResolution == ColorResolution.Off && kinect.CurrentDepthMode == DepthMode.Off) return;
+        
+        using (Capture capture = kinect.GetCapture())
+        using (Image color = capture.Color)
+        using (Image depth = capture.Depth)
+        using (Image ir = capture.IR)
         {
-            using (Capture capture = kinect.GetCapture())
-            {
-
-            }
+            //Debug.Log(color.WidthPixels + "x" + color.HeightPixels + "x" + color.StrideBytes + " : " + color.Memory.Length);
         }
     }
 
     private void OnDestroy()
     {
-        if (kinect != null)
-        {
-            kinect.StopCameras();
-            kinect.Dispose();
-        }
+        kinect?.Dispose();
     }
 }

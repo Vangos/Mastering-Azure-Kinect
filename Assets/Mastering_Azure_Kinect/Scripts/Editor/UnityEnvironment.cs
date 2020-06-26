@@ -40,12 +40,21 @@ public class UnityEnvironment : MonoBehaviour
             string name = Path.GetFileName(file);
             string extension = Path.GetExtension(file);
 
-            if (extension == ".dll" || extension == ".onnx")
+            if (extension == ".onnx")
             {
                 string path = Path.Combine(destination, name);
 
                 File.Copy(file, path, true);
             }
+
+#if UNITY_2018 || UNITY_2017
+            if (extension == ".dll")
+            {
+                string path = Path.Combine(destination, name);
+
+                File.Copy(file, path, true);
+            }
+#endif
         }
     }
 }

@@ -150,6 +150,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53c687b8b33d62549b4a29206de37203, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  configuration:
+    cameraFps: 2
+    colorFormat: 3
+    colorResolution: 6
+    depthMode: 2
+    synchronizedImagesOnly: 1
 --- !u!4 &148757798
 Transform:
   m_ObjectHideFlags: 0
