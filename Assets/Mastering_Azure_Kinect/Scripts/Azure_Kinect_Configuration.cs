@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Azure.Kinect.Sensor;
+﻿using Microsoft.Azure.Kinect.Sensor;
 using UnityEngine;
 
 public class Azure_Kinect_Configuration : MonoBehaviour
@@ -37,8 +36,6 @@ public class Azure_Kinect_Configuration : MonoBehaviour
 
                 Debug.Log($"Color Resolution: {kinect.CurrentColorResolution}");
                 Debug.Log($"Depth Mode: {kinect.CurrentDepthMode}");
-
-                kinect.StartImu();
             }
             catch
             {
@@ -51,28 +48,25 @@ public class Azure_Kinect_Configuration : MonoBehaviour
     {
         if (kinect == null) return;
         if (kinect.CurrentColorResolution == ColorResolution.Off && kinect.CurrentDepthMode == DepthMode.Off) return;
-        
+
         using (Capture capture = kinect.GetCapture())
-        using (Image color = capture.Color)
-        using (Image depth = capture.Depth)
-        using (Image ir = capture.IR)
         {
             Debug.Log($"Temperature: {capture.Temperature}°C");
-            Debug.Log($"Color: {color.WidthPixels}x{color.HeightPixels}");
-            Debug.Log($"Depth: {depth.WidthPixels}x{depth.HeightPixels}");
-            Debug.Log($"IR: {ir.WidthPixels}x{ir.HeightPixels}");
+
+            using (Image color = capture.Color)
+            using (Image depth = capture.Depth)
+            using (Image ir = capture.IR)
+            {
+                Debug.Log($"Color: {color.WidthPixels}x{color.HeightPixels}");
+                Debug.Log($"Depth: {depth.WidthPixels}x{depth.HeightPixels}");
+                Debug.Log($"IR: {ir.WidthPixels}x{ir.HeightPixels}");
+            }
         }
-
-        ImuSample imu = kinect.GetImuSample();
-
-        Debug.Log($"Accelerometer: {imu.AccelerometerSample.X}, {imu.AccelerometerSample.Y}, {imu.AccelerometerSample.Z}");
-        Debug.Log($"Gyroscope: {imu.GyroSample.X}, {imu.GyroSample.Y}, {imu.GyroSample.Z}");
     }
 
     private void OnDestroy()
     {
         kinect?.StopCameras();
-        kinect?.StopImu();
         kinect?.Dispose();
     }
 }
