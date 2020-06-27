@@ -153,9 +153,11 @@ MonoBehaviour:
   configuration:
     cameraFps: 2
     colorFormat: 3
-    colorResolution: 6
+    colorResolution: 2
     depthMode: 2
+    wiredSyncMode: 0
     synchronizedImagesOnly: 1
+    disableStreamingIndicator: 0
 --- !u!4 &148757798
 Transform:
   m_ObjectHideFlags: 0
