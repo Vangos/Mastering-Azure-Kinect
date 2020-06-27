@@ -18,9 +18,9 @@ public class Azure_Kinect_Configuration : MonoBehaviour
         {
             kinect = Device.Open();
 
-            string serial = kinect.SerialNum;
+            string serialNumber = kinect.SerialNum;
 
-            Debug.Log($"Serial number: {serial}");
+            Debug.Log($"Serial number: {serialNumber}");
 
             try
             {
@@ -34,13 +34,16 @@ public class Azure_Kinect_Configuration : MonoBehaviour
                     SynchronizedImagesOnly = configuration.SynchronizedImagesOnly,
                     DisableStreamingIndicator = configuration.DisableStreamingIndicator
                 });
+
+                Debug.Log($"Color Resolution: {kinect.CurrentColorResolution}");
+                Debug.Log($"Depth Mode: {kinect.CurrentDepthMode}");
+
+                kinect.StartImu();
             }
             catch
             {
                 Debug.Log("Invalid camera configuration!");
             }
-
-            kinect.StartImu();
         }
     }
 
@@ -54,12 +57,22 @@ public class Azure_Kinect_Configuration : MonoBehaviour
         using (Image depth = capture.Depth)
         using (Image ir = capture.IR)
         {
-            //Debug.Log(color.WidthPixels + "x" + color.HeightPixels + "x" + color.StrideBytes + " : " + color.Memory.Length);
+            Debug.Log($"Temperature: {capture.Temperature}°C");
+            Debug.Log($"Color: {color.WidthPixels}x{color.HeightPixels}");
+            Debug.Log($"Depth: {depth.WidthPixels}x{depth.HeightPixels}");
+            Debug.Log($"IR: {ir.WidthPixels}x{ir.HeightPixels}");
         }
+
+        ImuSample imu = kinect.GetImuSample();
+
+        Debug.Log($"Accelerometer: {imu.AccelerometerSample.X}, {imu.AccelerometerSample.Y}, {imu.AccelerometerSample.Z}");
+        Debug.Log($"Gyroscope: {imu.GyroSample.X}, {imu.GyroSample.Y}, {imu.GyroSample.Z}");
     }
 
     private void OnDestroy()
     {
+        kinect?.StopCameras();
+        kinect?.StopImu();
         kinect?.Dispose();
     }
 }
