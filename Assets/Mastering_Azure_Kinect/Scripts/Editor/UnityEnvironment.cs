@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
@@ -35,26 +36,26 @@ public class UnityEnvironment : MonoBehaviour
 
     private static void CopyFiles(string source, string destination)
     {
-        foreach (string file in Directory.GetFiles(source))
+        try
         {
-            string name = Path.GetFileName(file);
-            string extension = Path.GetExtension(file);
-
-            if (extension == ".onnx")
+            foreach (string file in Directory.GetFiles(source))
             {
-                string path = Path.Combine(destination, name);
+                string name = Path.GetFileName(file);
+                string extension = Path.GetExtension(file);
 
-                File.Copy(file, path, true);
+                if (extension == ".onnx" || extension == ".dll")
+                {
+                    string path = Path.Combine(destination, name);
+
+                    File.Copy(file, path, true);
+                }
             }
 
-#if UNITY_2018 || UNITY_2017
-            if (extension == ".dll")
-            {
-                string path = Path.Combine(destination, name);
-
-                File.Copy(file, path, true);
-            }
-#endif
+            AssetDatabase.Refresh();
+        }
+        catch
+        {
+            // Ignored
         }
     }
 }
