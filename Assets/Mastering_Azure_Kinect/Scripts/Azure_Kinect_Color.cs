@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Microsoft.Azure.Kinect.Sensor;
+﻿using Microsoft.Azure.Kinect.Sensor;
 using UnityEngine;
 using UnityEngine.UI;
-using Debug = UnityEngine.Debug;
 using Image = Microsoft.Azure.Kinect.Sensor.Image;
 
 public class Azure_Kinect_Color : MonoBehaviour
 {
-    [SerializeField] private FPS cameraFps = FPS.FPS30;
-    [SerializeField] private ImageFormat colorFormat = ImageFormat.ColorBGRA32;
-    [SerializeField] private ColorResolution colorResolution = ColorResolution.R1080p;
-    [SerializeField] private DepthMode depthMode = DepthMode.NFOV_Unbinned;
-    [SerializeField] private bool syncedImagesOnly = true;
+    [SerializeField] private KinectConfiguration configuration;
 
     private Device kinect;
 
@@ -25,19 +16,19 @@ public class Azure_Kinect_Color : MonoBehaviour
     {
         int deviceCount = Device.GetInstalledCount();
 
-        Debug.Log($"Found {deviceCount} device(s).");
-
         if (deviceCount > 0)
         {
             kinect = Device.Open();
 
             kinect.StartCameras(new DeviceConfiguration
             {
-                CameraFPS = cameraFps,
-                ColorFormat = colorFormat,
-                ColorResolution = colorResolution,
-                DepthMode = depthMode,
-                SynchronizedImagesOnly = syncedImagesOnly
+                CameraFPS = configuration.CameraFps,
+                ColorFormat = configuration.ColorFormat,
+                ColorResolution = configuration.ColorResolution,
+                DepthMode = configuration.DepthMode,
+                WiredSyncMode = configuration.WiredSyncMode,
+                SynchronizedImagesOnly = configuration.SynchronizedImagesOnly,
+                DisableStreamingIndicator = configuration.DisableStreamingIndicator
             });
 
             int colorWidth = kinect.GetCalibration().ColorCameraCalibration.ResolutionWidth;
