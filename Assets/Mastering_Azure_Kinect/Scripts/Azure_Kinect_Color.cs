@@ -1,4 +1,7 @@
-﻿using Microsoft.Azure.Kinect.Sensor;
+﻿using System;
+using System.Buffers;
+using System.Runtime.InteropServices;
+using Microsoft.Azure.Kinect.Sensor;
 using UnityEngine;
 using UnityEngine.UI;
 using Image = Microsoft.Azure.Kinect.Sensor.Image;
@@ -49,8 +52,17 @@ public class Azure_Kinect_Color : MonoBehaviour
         using (Capture capture = kinect.GetCapture())
         using (Image color = capture.Color)
         {
-            // Fastest method
-            byte[] colorData = color.Memory.ToArray();
+            // Faster method
+            byte[] colorData = new byte[color.Size];
+
+            unsafe
+            {
+                using (MemoryHandle pin = color.Memory.Pin())
+                {
+                    Marshal.Copy((IntPtr)pin.Pointer, colorData, 0, (int)color.Size);
+                }
+            }
+
             texture.LoadRawTextureData(colorData);
             texture.Apply();
 
@@ -59,15 +71,10 @@ public class Azure_Kinect_Color : MonoBehaviour
 
             //for (int i = 0; i < colorData.Length; i++)
             //{
-            //    Color32 c = colorData[i];
-            //    byte r = c.r;
-            //    byte g = c.g;
-            //    byte b = c.b;
-            //    byte a = c.a;
+            //    byte r = colorData[i].r;
+            //    byte b = colorData[i].b;
 
-            //    colorData[i].a = a;
             //    colorData[i].r = b;
-            //    colorData[i].g = g;
             //    colorData[i].b = r;
             //}
 

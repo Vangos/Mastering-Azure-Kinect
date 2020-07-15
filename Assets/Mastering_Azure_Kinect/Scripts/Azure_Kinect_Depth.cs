@@ -1,5 +1,4 @@
-﻿using System.CodeDom;
-using Microsoft.Azure.Kinect.Sensor;
+﻿using Microsoft.Azure.Kinect.Sensor;
 using UnityEngine;
 using UnityEngine.UI;
 using Image = Microsoft.Azure.Kinect.Sensor.Image;
@@ -58,8 +57,8 @@ public class Azure_Kinect_Depth : MonoBehaviour
 
             byte[] pixels =
                 visualization == DepthVisualization.Gray
-                    ? Grayscale(depthData, depth.WidthPixels, depth.HeightPixels)
-                    : Jet(depthData, depth.WidthPixels, depth.HeightPixels);
+                    ? Grayscale(depthData)
+                    : Jet(depthData);
 
             texture.LoadRawTextureData(pixels);
             texture.Apply();
@@ -72,7 +71,7 @@ public class Azure_Kinect_Depth : MonoBehaviour
         kinect?.Dispose();
     }
 
-    private byte[] Grayscale(ushort[] data, int width, int height)
+    private byte[] Grayscale(ushort[] data)
     {
         const int channels = 3; // RGB has 3 channels.
         const int maxByte = byte.MaxValue;
@@ -96,7 +95,7 @@ public class Azure_Kinect_Depth : MonoBehaviour
         return pixels;
     }
 
-    private byte[] Jet(ushort[] data, int width, int height)
+    private byte[] Jet(ushort[] data)
     {
         const int channels = 3; // RGB has 3 channels.
         const int maxByte = 255;
