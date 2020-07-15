@@ -39,8 +39,12 @@ public class Azure_Kinect_Configuration : MonoBehaviour
             }
             catch
             {
-                Debug.Log("Invalid camera configuration!");
+                Debug.LogError("Invalid camera configuration!");
             }
+        }
+        else
+        {
+            Debug.LogWarning("No Kinect devices available.");
         }
     }
 
