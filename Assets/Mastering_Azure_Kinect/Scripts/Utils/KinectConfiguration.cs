@@ -9,7 +9,7 @@ using UnityEngine;
 public class KinectConfiguration
 {
     [SerializeField] private FPS cameraFps = FPS.FPS30;
-    [SerializeField] private ImageFormat colorFormat = ImageFormat.ColorBGRA32;
+    [SerializeField] private ImageFormat colorFormat = ImageFormat.ColorMJPG;
     [SerializeField] private ColorResolution colorResolution = ColorResolution.R1080p;
     [SerializeField] private DepthMode depthMode = DepthMode.NFOV_Unbinned;
     [SerializeField] private WiredSyncMode wiredSyncMode = WiredSyncMode.Standalone;

@@ -1,4 +1,6 @@
-﻿using Microsoft.Azure.Kinect.Sensor;
+﻿using System.Linq;
+using System.Runtime.InteropServices;
+using Microsoft.Azure.Kinect.Sensor;
 using UnityEngine;
 using UnityEngine.UI;
 using Image = Microsoft.Azure.Kinect.Sensor.Image;
@@ -53,7 +55,7 @@ public class Azure_Kinect_Depth : MonoBehaviour
         using (Capture capture = kinect.GetCapture())
         using (Image depth = capture.Depth)
         {
-            ushort[] depthData = depth.GetPixels<ushort>().ToArray();
+            ushort[] depthData = MemoryMarshal.Cast<byte, ushort>(depth.Memory.Span).ToArray();
 
             byte[] pixels =
                 visualization == DepthVisualization.Gray
@@ -84,7 +86,7 @@ public class Azure_Kinect_Depth : MonoBehaviour
 
             if (depth > 0)
             {
-                byte gray = (byte)((float)depth / (float)maxDepth * maxByte);
+                byte gray = (byte)((float)depth / maxDepth * maxByte);
 
                 pixels[i * channels + 0] = gray;
                 pixels[i * channels + 1] = gray;

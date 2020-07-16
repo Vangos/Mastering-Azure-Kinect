@@ -313,7 +313,7 @@ RectTransform:
   m_GameObject: {fileID: 1154010771}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: -1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 941643340}
   m_RootOrder: 0
@@ -478,11 +478,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9ea799978c2f7540a51063f0f4aac4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraFps: 2
-  colorFormat: 3
-  colorResolution: 2
-  depthMode: 2
-  syncedImagesOnly: 1
+  configuration:
+    cameraFps: 2
+    colorFormat: 0
+    colorResolution: 2
+    depthMode: 2
+    wiredSyncMode: 0
+    synchronizedImagesOnly: 1
+    disableStreamingIndicator: 0
   image: {fileID: 1154010773}
 --- !u!4 &1822323537
 Transform:
