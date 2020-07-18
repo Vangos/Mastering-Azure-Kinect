@@ -1,64 +1,39 @@
-﻿using System.Runtime.InteropServices;
-using Microsoft.Azure.Kinect.Sensor;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
-using Image = Microsoft.Azure.Kinect.Sensor.Image;
 
 public class Azure_Kinect_Color : MonoBehaviour
 {
-    [SerializeField] private KinectConfiguration configuration;
-    [SerializeField] private RawImage image;
+    [SerializeField] private KinectConfiguration _configuration;
+    [SerializeField] private RawImage _image;
 
-    private Device kinect;
-    private Texture2D texture;
+    private Texture2D _texture;
+
+    private readonly FrameDataProvider _dataProvider = new FrameDataProvider();
 
     private void Start()
     {
-        int deviceCount = Device.GetInstalledCount();
+        _dataProvider.Start(_configuration);
 
-        if (deviceCount > 0)
-        {
-            kinect = Device.Open();
-
-            kinect.StartCameras(new DeviceConfiguration
-            {
-                CameraFPS = configuration.CameraFps,
-                ColorFormat = configuration.ColorFormat,
-                ColorResolution = configuration.ColorResolution,
-                DepthMode = configuration.DepthMode,
-                WiredSyncMode = configuration.WiredSyncMode,
-                SynchronizedImagesOnly = configuration.SynchronizedImagesOnly,
-                DisableStreamingIndicator = configuration.DisableStreamingIndicator
-            });
-
-            int colorWidth = kinect.GetCalibration().ColorCameraCalibration.ResolutionWidth;
-            int colorHeight = kinect.GetCalibration().ColorCameraCalibration.ResolutionHeight;
-
-            texture = new Texture2D(colorWidth, colorHeight, TextureFormat.RGB24, false);
-            image.texture = texture;
-        }
-        else
-        {
-            Debug.LogWarning("No Kinect devices available.");
-        }
+        _texture = new Texture2D(1, 1, TextureFormat.RGB24, false);
+        _image.texture = _texture;
     }
 
     private void Update()
     {
-        if (kinect == null) return;
+        if (!_dataProvider.IsRunning) return;
 
-        using (Capture capture = kinect.GetCapture())
-        using (Image color = capture.Color)
+        FrameData frameData = _dataProvider.Update();
+
+        if (frameData != null)
         {
-            byte[] colorData = MemoryMarshal.AsBytes(color.Memory.Span).ToArray();
+            byte[] colorData = frameData.ColorData;
 
-            texture.LoadImage(colorData);
+            _texture.LoadImage(colorData);
         }
     }
 
     private void OnDestroy()
     {
-        kinect?.StopCameras();
-        kinect?.Dispose();
+        _dataProvider.Stop();
     }
 }

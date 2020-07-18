@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class Azure_Kinect_Configuration : MonoBehaviour
 {
-    [SerializeField] private KinectConfiguration configuration;
+    [SerializeField] private KinectConfiguration _configuration;
 
-    private Device kinect;
+    private readonly FrameDataProvider _kinect = new FrameDataProvider();
 
     private void Start()
     {
@@ -13,64 +13,31 @@ public class Azure_Kinect_Configuration : MonoBehaviour
 
         Debug.Log($"Found {deviceCount} device(s).");
 
-        if (deviceCount > 0)
+        _kinect.Start(_configuration);
+
+        if (_kinect.IsRunning)
         {
-            kinect = Device.Open();
-
-            string serialNumber = kinect.SerialNum;
-
-            Debug.Log($"Serial number: {serialNumber}");
-
-            try
-            {
-                kinect.StartCameras(new DeviceConfiguration
-                {
-                    CameraFPS = configuration.CameraFps,
-                    ColorFormat = configuration.ColorFormat,
-                    ColorResolution = configuration.ColorResolution,
-                    DepthMode = configuration.DepthMode,
-                    WiredSyncMode = configuration.WiredSyncMode,
-                    SynchronizedImagesOnly = configuration.SynchronizedImagesOnly,
-                    DisableStreamingIndicator = configuration.DisableStreamingIndicator
-                });
-
-                Debug.Log($"Color Resolution: {kinect.CurrentColorResolution}");
-                Debug.Log($"Depth Mode: {kinect.CurrentDepthMode}");
-            }
-            catch
-            {
-                Debug.LogError("Invalid camera configuration!");
-            }
-        }
-        else
-        {
-            Debug.LogWarning("No Kinect devices available.");
+            Debug.Log($"Color Resolution: {_kinect.Device.CurrentColorResolution}");
+            Debug.Log($"Depth Mode: {_kinect.Device.CurrentDepthMode}");
         }
     }
 
     private void Update()
     {
-        if (kinect == null) return;
-        if (kinect.CurrentColorResolution == ColorResolution.Off && kinect.CurrentDepthMode == DepthMode.Off) return;
+        if (!_kinect.IsRunning) return;
+        if (_kinect.Device.CurrentColorResolution == ColorResolution.Off && _kinect.Device.CurrentDepthMode == DepthMode.Off) return;
 
-        using (Capture capture = kinect.GetCapture())
+        FrameData frameData = _kinect.Update();
+
+        if (frameData != null)
         {
-            Debug.Log($"Temperature: {capture.Temperature}°C");
-
-            using (Image color = capture.Color)
-            using (Image depth = capture.Depth)
-            using (Image ir = capture.IR)
-            {
-                Debug.Log($"Color: {color.WidthPixels}x{color.HeightPixels}");
-                Debug.Log($"Depth: {depth.WidthPixels}x{depth.HeightPixels}");
-                Debug.Log($"IR: {ir.WidthPixels}x{ir.HeightPixels}");
-            }
+            float temperature = frameData.Temperature;
+            Debug.Log($"Temperature: {temperature}°C");
         }
     }
 
     private void OnDestroy()
     {
-        kinect?.StopCameras();
-        kinect?.Dispose();
+        _kinect.Stop();
     }
 }

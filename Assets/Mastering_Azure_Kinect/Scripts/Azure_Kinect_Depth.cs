@@ -7,73 +7,55 @@ using Image = Microsoft.Azure.Kinect.Sensor.Image;
 
 public class Azure_Kinect_Depth : MonoBehaviour
 {
-    [SerializeField] private KinectConfiguration configuration;
-    [SerializeField] private RawImage image;
+    [SerializeField] private KinectConfiguration _configuration;
+    [SerializeField] private RawImage _image;
+    [SerializeField] private DepthVisualization _visualization;
+    [SerializeField] [Range(0, 10000)] private ushort _maxDepth = 6000;
 
-    [Range(0, 10000)]
-    [SerializeField] private ushort maxDepth = 6000;
-    [SerializeField] private DepthVisualization visualization;
-
-    private Device kinect;
-    private Texture2D texture;
+    private Texture2D _texture;
+    
+    private readonly FrameDataProvider _dataProvider = new FrameDataProvider();
 
     private void Start()
     {
-        int deviceCount = Device.GetInstalledCount();
+        _dataProvider.Start(_configuration);
 
-        if (deviceCount > 0)
+        if (_dataProvider.IsRunning)
         {
-            kinect = Device.Open();
+            int depthWidth = _dataProvider.Device.GetCalibration().DepthCameraCalibration.ResolutionWidth;
+            int depthHeight = _dataProvider.Device.GetCalibration().DepthCameraCalibration.ResolutionHeight;
 
-            kinect.StartCameras(new DeviceConfiguration
-            {
-                CameraFPS = configuration.CameraFps,
-                ColorFormat = configuration.ColorFormat,
-                ColorResolution = configuration.ColorResolution,
-                DepthMode = configuration.DepthMode,
-                WiredSyncMode = configuration.WiredSyncMode,
-                SynchronizedImagesOnly = configuration.SynchronizedImagesOnly,
-                DisableStreamingIndicator = configuration.DisableStreamingIndicator
-            });
-
-            int depthWidth = kinect.GetCalibration().DepthCameraCalibration.ResolutionWidth;
-            int depthHeight = kinect.GetCalibration().DepthCameraCalibration.ResolutionHeight;
-
-            texture = new Texture2D(depthWidth, depthHeight, TextureFormat.RGB24, false);
-            image.texture = texture;
-        }
-        else
-        {
-            Debug.LogWarning("No Kinect devices available.");
+            _texture = new Texture2D(depthWidth, depthHeight, TextureFormat.RGB24, false);
+            _image.texture = _texture;
         }
     }
 
     private void Update()
     {
-        if (kinect == null) return;
+        if (!_dataProvider.IsRunning) return;
 
-        using (Capture capture = kinect.GetCapture())
-        using (Image depth = capture.Depth)
+        FrameData frameData = _dataProvider.Update();
+
+        if (frameData != null)
         {
-            ushort[] depthData = MemoryMarshal.Cast<byte, ushort>(depth.Memory.Span).ToArray();
+            ushort[] depthData = frameData.DepthData;
 
             byte[] pixels =
-                visualization == DepthVisualization.Gray
-                    ? Grayscale(depthData)
+                _visualization == DepthVisualization.Gray
+                    ? Gray(depthData)
                     : Jet(depthData);
 
-            texture.LoadRawTextureData(pixels);
-            texture.Apply();
+            _texture.LoadRawTextureData(pixels);
+            _texture.Apply();
         }
     }
 
     private void OnDestroy()
     {
-        kinect?.StopCameras();
-        kinect?.Dispose();
+        _dataProvider.Stop();
     }
 
-    private byte[] Grayscale(ushort[] data)
+    private byte[] Gray(ushort[] data)
     {
         const int channels = 3; // RGB has 3 channels.
         const int maxByte = byte.MaxValue;
@@ -86,7 +68,7 @@ public class Azure_Kinect_Depth : MonoBehaviour
 
             if (depth > 0)
             {
-                byte gray = (byte)((float)depth / maxDepth * maxByte);
+                byte gray = (byte)((float)depth / _maxDepth * maxByte);
 
                 pixels[i * channels + 0] = gray;
                 pixels[i * channels + 1] = gray;
@@ -113,7 +95,7 @@ public class Azure_Kinect_Depth : MonoBehaviour
 
             if (depth > 0)
             {
-                float t = depth * (max - min) / maxDepth + min;
+                float t = depth * (max - min) / _maxDepth + min;
 
                 float red = Mathf.Clamp01(1.5f - Mathf.Abs(2.0f * t - max)) * maxByte;
                 float green = Mathf.Clamp01(1.5f - Mathf.Abs(2.0f * t)) * maxByte;

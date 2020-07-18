@@ -478,15 +478,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9ea799978c2f7540a51063f0f4aac4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  configuration:
-    cameraFps: 2
-    colorFormat: 0
-    colorResolution: 2
-    depthMode: 2
-    wiredSyncMode: 0
-    synchronizedImagesOnly: 1
-    disableStreamingIndicator: 0
-  image: {fileID: 1154010773}
+  _configuration:
+    _cameraFps: 2
+    _colorFormat: 0
+    _colorResolution: 2
+    _depthMode: 2
+    _wiredSyncMode: 0
+    _synchronizedImagesOnly: 1
+    _disableStreamingIndicator: 0
+  _image: {fileID: 1154010773}
 --- !u!4 &1822323537
 Transform:
   m_ObjectHideFlags: 0
