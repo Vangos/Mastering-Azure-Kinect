@@ -1,18 +1,35 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Microsoft.Azure.Kinect.Sensor;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Azure_Kinect_IMU : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] private KinectConfiguration _configuration;
+    [SerializeField] private Transform cube;
+
+    private readonly KinectSensor _dataProvider = new KinectSensor();
+
+    private void Start()
     {
-        
+        _dataProvider.Start(_configuration);
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        
+        if (!_dataProvider.IsRunning) return;
+
+        FrameData frameData = _dataProvider.Update();
+
+        if (frameData != null)
+        {
+            ImuSample imuSample = frameData.ImuData;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        _dataProvider.Stop();
     }
 }

@@ -14,7 +14,7 @@ public class Azure_Kinect_Depth : MonoBehaviour
 
     private Texture2D _texture;
     
-    private readonly FrameDataProvider _dataProvider = new FrameDataProvider();
+    private readonly KinectSensor _dataProvider = new KinectSensor();
 
     private void Start()
     {

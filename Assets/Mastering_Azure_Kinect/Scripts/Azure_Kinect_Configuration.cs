@@ -5,7 +5,7 @@ public class Azure_Kinect_Configuration : MonoBehaviour
 {
     [SerializeField] private KinectConfiguration _configuration;
 
-    private readonly FrameDataProvider _kinect = new FrameDataProvider();
+    private readonly KinectSensor _kinect = new KinectSensor();
 
     private void Start()
     {

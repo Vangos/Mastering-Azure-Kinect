@@ -1,15 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Azure.Kinect.BodyTracking;
 using Microsoft.Azure.Kinect.Sensor;
 using UnityEngine;
 
-public class FrameDataProvider
+public class KinectSensor
 {
     private Device _device;
     private Tracker _tracker;
-    private Calibration _calibration;
     private FrameData _frameData;
     private volatile bool _isRunning;
     private readonly object _lock = new object();
@@ -27,6 +27,13 @@ public class FrameDataProvider
         {
             Debug.LogWarning("No Kinect devices available.");
             return;
+        }
+
+        if (configuration == null)
+        {
+            configuration = KinectConfiguration.Default;
+            
+            Debug.Log("No configuration was provided. Using the default configuration.");
         }
 
         try
@@ -51,9 +58,7 @@ public class FrameDataProvider
             });
             _device.StartImu();
 
-            _calibration = _device.GetCalibration();
-
-            _tracker = Tracker.Create(_calibration, TrackerConfiguration.Default);
+            _tracker = Tracker.Create(_device.GetCalibration(), TrackerConfiguration.Default);
 
             _isRunning = true;
 
@@ -105,21 +110,31 @@ public class FrameDataProvider
                 using (Image color = capture.Color)
                 using (Image depth = capture.Depth)
                 {
-
-                    //Tracker.EnqueueCapture(capture);
-
-                    //using (var f = Tracker.PopResult(TimeSpan.Zero, false))
-                    //{
-                    //}
-
+                    DateTime timestamp = DateTime.FromBinary(depth.SystemTimestampNsec);
+                    byte[] colorData = MemoryMarshal.AsBytes(color.Memory.Span).ToArray();
+                    ushort[] depthData = MemoryMarshal.Cast<byte, ushort>(depth.Memory.Span).ToArray();
+                    byte[] bodyIndexData = null;
+                    List<Body> bodyData = null;
                     ImuSample imuSample = _device.GetImuSample();
 
+                    //_tracker.EnqueueCapture(capture);
+
+                    //using (var f = _tracker.PopResult(TimeSpan.Zero, false))
+                    //{
+                    //    using (Image bodyIndex = f.BodyIndexMap)
+                    //    {
+                    //        bodyIndexData = MemoryMarshal.AsBytes(bodyIndex.Memory.Span).ToArray();
+                    //    }
+                    //}
+                    
                     FrameData newData = new FrameData
                     {
-                        Timestamp = DateTime.FromBinary(depth.SystemTimestampNsec),
+                        Timestamp = timestamp,
                         Temperature = capture.Temperature,
-                        ColorData = MemoryMarshal.AsBytes(color.Memory.Span).ToArray(),
-                        DepthData = MemoryMarshal.Cast<byte, ushort>(depth.Memory.Span).ToArray(),
+                        ColorData = colorData,
+                        DepthData = depthData,
+                        UserIndexData = bodyIndexData,
+                        BodyData = bodyData,
                         ImuData = imuSample
                     };
 

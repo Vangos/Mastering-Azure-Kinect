@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Azure.Kinect.BodyTracking;
 using Microsoft.Azure.Kinect.Sensor;
 using UnityEngine;
 
@@ -8,6 +9,7 @@ using UnityEngine;
 [Serializable]
 public class KinectConfiguration
 {
+    [Header("Sensor SDK")]
     [SerializeField] private FPS _cameraFps = FPS.FPS30;
     [SerializeField] private ImageFormat _colorFormat = ImageFormat.ColorMJPG;
     [SerializeField] private ColorResolution _colorResolution = ColorResolution.R1080p;
@@ -15,6 +17,10 @@ public class KinectConfiguration
     [SerializeField] private WiredSyncMode _wiredSyncMode = WiredSyncMode.Standalone;
     [SerializeField] private bool _synchronizedImagesOnly = true;
     [SerializeField] private bool _disableStreamingIndicator = false;
+
+    [Header("Body Tracking SDK")]
+    [SerializeField] private TrackerProcessingMode _trackerProcessingMode = TrackerProcessingMode.Gpu;
+    [SerializeField] private SensorOrientation _sensorOrientation = SensorOrientation.Default;
 
     /// <summary>
     /// The desired frame rate of the camera.
@@ -51,4 +57,18 @@ public class KinectConfiguration
     /// Specifies whether the streaming light indicator of the device is disabled.
     /// </summary>
     public bool DisableStreamingIndicator => _disableStreamingIndicator;
+
+    /// <summary>
+    /// Specifies the body-tracking processing mode (CPU/GPU).
+    /// GPU performs significantly faster.
+    /// </summary>
+    public TrackerProcessingMode TrackerProcessingMode => _trackerProcessingMode;
+
+    /// <summary>
+    /// Specifies the sensor orientation for body-tracking.
+    /// ATTENTION: This setting does not rotate the color or depth images; it's only optimizing the body-tracking accuracy when the sensor is rotated.
+    /// </summary>
+    public SensorOrientation SensorOrientation => _sensorOrientation;
+
+    public static KinectConfiguration Default => new KinectConfiguration();
 }
