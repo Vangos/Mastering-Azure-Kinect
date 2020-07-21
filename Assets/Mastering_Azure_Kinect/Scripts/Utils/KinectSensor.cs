@@ -58,7 +58,11 @@ public class KinectSensor
             });
             _device.StartImu();
 
-            _tracker = Tracker.Create(_device.GetCalibration(), TrackerConfiguration.Default);
+            _tracker = Tracker.Create(_device.GetCalibration(), new TrackerConfiguration
+            {
+                ProcessingMode = configuration.TrackerProcessingMode,
+                SensorOrientation = configuration.SensorOrientation
+            });
 
             _isRunning = true;
 
@@ -104,46 +108,56 @@ public class KinectSensor
     {
         Task.Run(() =>
         {
-            while (_isRunning)
+            try
             {
-                using (Capture capture = _device.GetCapture())
-                using (Image color = capture.Color)
-                using (Image depth = capture.Depth)
+                while (_isRunning)
                 {
-                    DateTime timestamp = DateTime.FromBinary(depth.SystemTimestampNsec);
-                    byte[] colorData = MemoryMarshal.AsBytes(color.Memory.Span).ToArray();
-                    ushort[] depthData = MemoryMarshal.Cast<byte, ushort>(depth.Memory.Span).ToArray();
-                    byte[] bodyIndexData = null;
-                    List<Body> bodyData = null;
-                    ImuSample imuSample = _device.GetImuSample();
-
-                    //_tracker.EnqueueCapture(capture);
-
-                    //using (var f = _tracker.PopResult(TimeSpan.Zero, false))
-                    //{
-                    //    using (Image bodyIndex = f.BodyIndexMap)
-                    //    {
-                    //        bodyIndexData = MemoryMarshal.AsBytes(bodyIndex.Memory.Span).ToArray();
-                    //    }
-                    //}
-                    
-                    FrameData newData = new FrameData
+                    using (Capture capture = _device.GetCapture())
+                    using (Image color = capture.Color)
+                    using (Image depth = capture.Depth)
                     {
-                        Timestamp = timestamp,
-                        Temperature = capture.Temperature,
-                        ColorData = colorData,
-                        DepthData = depthData,
-                        UserIndexData = bodyIndexData,
-                        BodyData = bodyData,
-                        ImuData = imuSample
-                    };
+                        DateTime timestamp = DateTime.FromBinary(depth.SystemTimestampNsec);
+                        byte[] colorData = MemoryMarshal.AsBytes(color.Memory.Span).ToArray();
+                        ushort[] depthData = MemoryMarshal.Cast<byte, ushort>(depth.Memory.Span).ToArray();
+                        byte[] bodyIndexData = null;
+                        List<Body> bodyData = null;
+                        ImuSample imuSample = _device.GetImuSample();
 
-                    lock (_lock)
-                    {
-                        FrameData temp = newData;
-                        _frameData = temp;
+                        _tracker.EnqueueCapture(capture);
+
+                        using (var f = _tracker.PopResult(TimeSpan.Zero, false))
+                        {
+                            if (f != null)
+                            {
+                                using (Image bodyIndex = f.BodyIndexMap)
+                                {
+                                    bodyIndexData = MemoryMarshal.AsBytes(bodyIndex.Memory.Span).ToArray();
+                                }
+                            }
+                        }
+
+                        FrameData newData = new FrameData
+                        {
+                            Timestamp = timestamp,
+                            Temperature = capture.Temperature,
+                            ColorData = colorData,
+                            DepthData = depthData,
+                            UserIndexData = bodyIndexData,
+                            BodyData = bodyData,
+                            ImuData = imuSample
+                        };
+
+                        lock (_lock)
+                        {
+                            FrameData temp = newData;
+                            _frameData = temp;
+                        }
                     }
                 }
+            }
+            catch
+            {
+                // Tried to access disposed objects. Ignore.
             }
         });
     }
