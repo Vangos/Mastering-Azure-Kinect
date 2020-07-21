@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Microsoft.Azure.Kinect.Sensor;
+﻿using Microsoft.Azure.Kinect.Sensor;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Azure_Kinect_IMU : MonoBehaviour
 {

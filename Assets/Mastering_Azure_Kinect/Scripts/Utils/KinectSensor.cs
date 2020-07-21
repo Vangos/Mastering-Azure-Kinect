@@ -125,14 +125,16 @@ public class KinectSensor
 
                         _tracker.EnqueueCapture(capture);
 
-                        using (var f = _tracker.PopResult(TimeSpan.Zero, false))
+                        using (Frame bodyFrame = _tracker.PopResult(TimeSpan.Zero, false))
                         {
-                            if (f != null)
+                            if (bodyFrame != null)
                             {
-                                using (Image bodyIndex = f.BodyIndexMap)
+                                using (Image bodyIndex = bodyFrame.BodyIndexMap)
                                 {
                                     bodyIndexData = MemoryMarshal.AsBytes(bodyIndex.Memory.Span).ToArray();
                                 }
+
+                                bodyData = Body.Create(bodyFrame);
                             }
                         }
 
