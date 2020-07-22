@@ -10,7 +10,7 @@ public class KinectSensor
 {
     private Device _device;
     private Tracker _tracker;
-    private FrameData _frameData;
+    private KinectData _frameData;
     private volatile bool _isRunning;
     private readonly object _lock = new object();
 
@@ -86,7 +86,7 @@ public class KinectSensor
         _device?.Dispose();
     }
 
-    public FrameData Update()
+    public KinectData Update()
     {
         if (!_isRunning) return null;
         if (_frameData == null) return null;
@@ -138,20 +138,20 @@ public class KinectSensor
                             }
                         }
 
-                        FrameData newData = new FrameData
+                        KinectData newData = new KinectData
                         {
                             Timestamp = timestamp,
                             Temperature = capture.Temperature,
-                            ColorData = colorData,
-                            DepthData = depthData,
-                            UserIndexData = bodyIndexData,
-                            BodyData = bodyData,
-                            ImuData = imuSample
+                            Color = colorData,
+                            Depth = depthData,
+                            BodyIndex = bodyIndexData,
+                            Bodies = bodyData,
+                            Imu = imuSample
                         };
 
                         lock (_lock)
                         {
-                            FrameData temp = newData;
+                            KinectData temp = newData;
                             _frameData = temp;
                         }
                     }

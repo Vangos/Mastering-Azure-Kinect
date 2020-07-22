@@ -34,11 +34,11 @@ public class Azure_Kinect_Depth : MonoBehaviour
     {
         if (!_dataProvider.IsRunning) return;
 
-        FrameData frameData = _dataProvider.Update();
+        KinectData frameData = _dataProvider.Update();
 
         if (frameData != null)
         {
-            ushort[] depthData = frameData.DepthData;
+            ushort[] depthData = frameData.Depth;
 
             byte[] pixels =
                 _visualization == DepthVisualization.Gray

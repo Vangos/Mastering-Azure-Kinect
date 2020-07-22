@@ -1,12 +1,14 @@
-﻿using Microsoft.Azure.Kinect.BodyTracking;
+﻿using System.Collections.Generic;
+using Microsoft.Azure.Kinect.BodyTracking;
 using UnityEngine;
 
 public class Azure_Kinect_BodyTracking : MonoBehaviour
 {
     [SerializeField] private KinectConfiguration _configuration;
-    [SerializeField] private Transform _head;
+    [SerializeField] private GameObject _stickmanPrefab;
 
     private readonly KinectSensor _dataProvider = new KinectSensor();
+    private List<Stickman3D> _stickmen = new List<Stickman3D>();
 
     private void Start()
     {
@@ -17,22 +19,50 @@ public class Azure_Kinect_BodyTracking : MonoBehaviour
     {
         if (!_dataProvider.IsRunning) return;
 
-        FrameData frameData = _dataProvider.Update();
+        KinectData frameData = _dataProvider.Update();
 
-        if (frameData?.BodyData != null && frameData?.BodyData.Count > 0)
+        if (frameData?.Bodies != null && frameData.Bodies.Count > 0)
         {
-            var body = frameData.BodyData[0];
-            var head = body.Joints[JointId.SpineChest];
-
-            _head.position = head.Position;
-            _head.rotation = head.Orientation;
-
-            Debug.Log(_head.position);
+            UpdateStickmen(frameData.Bodies);
         }
     }
 
     private void OnDestroy()
     {
         _dataProvider.Stop();
+    }
+
+    private void UpdateStickmen(List<Body> bodies)
+    {
+        if (bodies == null)
+        {
+            return;
+        }
+
+        if (_stickmen == null)
+        {
+            _stickmen = new List<Stickman3D>();
+        }
+
+        if (_stickmen.Count != bodies.Count)
+        {
+            foreach (Stickman3D stickman in _stickmen)
+            {
+                Destroy(stickman.gameObject);
+            }
+
+            _stickmen.Clear();
+
+            foreach (Body body in bodies)
+            {
+                Stickman3D stickman = Instantiate(_stickmanPrefab).GetComponent<Stickman3D>();
+                _stickmen.Add(stickman);
+            }
+        }
+
+        for (int i = 0; i < bodies.Count; i++)
+        {
+            _stickmen[i].Load(bodies[i]);
+        }
     }
 }

@@ -22,11 +22,11 @@ public class Azure_Kinect_Color : MonoBehaviour
     {
         if (!_dataProvider.IsRunning) return;
 
-        FrameData frameData = _dataProvider.Update();
+        KinectData frameData = _dataProvider.Update();
 
         if (frameData != null)
         {
-            byte[] colorData = frameData.ColorData;
+            byte[] colorData = frameData.Color;
 
             _texture.LoadImage(colorData);
         }

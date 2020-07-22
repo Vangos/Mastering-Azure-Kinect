@@ -16,7 +16,6 @@ public class Body
 
     public static List<Body> Create(Frame bodyFrame)
     {
-        Debug.Log(bodyFrame.NumberOfBodies);
         List<Body> bodies = new List<Body>();
 
         for (uint i = 0; i < bodyFrame.NumberOfBodies; i++)

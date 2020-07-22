@@ -27,7 +27,7 @@ public class Azure_Kinect_Configuration : MonoBehaviour
         if (!_kinect.IsRunning) return;
         if (_kinect.Device.CurrentColorResolution == ColorResolution.Off && _kinect.Device.CurrentDepthMode == DepthMode.Off) return;
 
-        FrameData frameData = _kinect.Update();
+        KinectData frameData = _kinect.Update();
 
         if (frameData != null)
         {
