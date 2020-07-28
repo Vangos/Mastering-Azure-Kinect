@@ -8,7 +8,7 @@ public class Azure_Kinect_BodyTracking : MonoBehaviour
     [SerializeField] private GameObject _stickmanPrefab;
 
     private readonly KinectSensor _dataProvider = new KinectSensor();
-    private List<Stickman3D> _stickmen = new List<Stickman3D>();
+    private List<Stickman> _stickmen = new List<Stickman>();
 
     private void Start()
     {
@@ -41,12 +41,12 @@ public class Azure_Kinect_BodyTracking : MonoBehaviour
 
         if (_stickmen == null)
         {
-            _stickmen = new List<Stickman3D>();
+            _stickmen = new List<Stickman>();
         }
 
         if (_stickmen.Count != bodies.Count)
         {
-            foreach (Stickman3D stickman in _stickmen)
+            foreach (Stickman stickman in _stickmen)
             {
                 Destroy(stickman.gameObject);
             }
@@ -55,7 +55,7 @@ public class Azure_Kinect_BodyTracking : MonoBehaviour
 
             foreach (Body body in bodies)
             {
-                Stickman3D stickman = Instantiate(_stickmanPrefab).GetComponent<Stickman3D>();
+                Stickman stickman = Instantiate(_stickmanPrefab).GetComponent<Stickman>();
                 _stickmen.Add(stickman);
             }
         }

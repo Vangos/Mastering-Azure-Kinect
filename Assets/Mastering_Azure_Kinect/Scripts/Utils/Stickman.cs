@@ -2,12 +2,12 @@
 using Microsoft.Azure.Kinect.BodyTracking;
 using UnityEngine;
 
-public class Stickman3D : MonoBehaviour
+public class Stickman : MonoBehaviour
 {
     [SerializeField] private Transform[] _cubes = new Transform[(int)JointId.Count];
     [SerializeField] private LineRenderer[] _lines = new LineRenderer[(int)JointId.Count];
 
-    private readonly Tuple<JointId, JointId>[] _bones = new Tuple<JointId, JointId>[]
+    private readonly Tuple<JointId, JointId>[] _bones = 
     {
         Tuple.Create(JointId.EarLeft, JointId.EyeLeft),
         Tuple.Create(JointId.EyeLeft, JointId.Nose),
