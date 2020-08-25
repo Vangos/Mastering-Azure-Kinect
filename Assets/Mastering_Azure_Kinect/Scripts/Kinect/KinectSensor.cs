@@ -6,6 +6,9 @@ using Microsoft.Azure.Kinect.BodyTracking;
 using Microsoft.Azure.Kinect.Sensor;
 using UnityEngine;
 
+/// <summary>
+/// Encapsulates the streaming functionality of a Kinect sensor.
+/// </summary>
 public class KinectSensor
 {
     private Device _device;
@@ -16,9 +19,21 @@ public class KinectSensor
 
     private DateTime _lastRequestedTimestamp;
 
+    /// <summary>
+    /// Specifies whether the Kinect sensor is currently running.
+    /// </summary>
     public bool IsRunning => _isRunning;
+
+    /// <summary>
+    /// Returns the current Azure Kinect device.
+    /// </summary>
     public Device Device => _device;
 
+    /// <summary>
+    /// Starts streaming.
+    /// </summary>
+    /// <param name="configuration">The Azure Kinect configuration.</param>
+    /// <param name="deviceIndex">The index of the Azure Kinect device to use.</param>
     public void Start(KinectConfiguration configuration = null, int deviceIndex = 0)
     {
         _isRunning = false;
@@ -74,6 +89,9 @@ public class KinectSensor
         }
     }
 
+    /// <summary>
+    /// Stops streaming.
+    /// </summary>
     public void Stop()
     {
         _isRunning = false;
@@ -86,6 +104,10 @@ public class KinectSensor
         _device?.Dispose();
     }
 
+    /// <summary>
+    /// Returns the latest Azure Kinect frame data.
+    /// </summary>
+    /// <returns>A collection of Azure Kinect data.</returns>
     public KinectData Update()
     {
         if (!_isRunning) return null;

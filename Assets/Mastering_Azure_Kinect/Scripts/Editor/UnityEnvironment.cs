@@ -17,6 +17,7 @@ public class UnityEnvironment : MonoBehaviour
     {
         "cublas64_100.dll",
         "cudart64_100.dll",
+        "cudnn64_7.dll",
         "onnxruntime.dll",
         "dnn_model_2_0.onnx",
 #if UNITY_2018 || UNITY_2017

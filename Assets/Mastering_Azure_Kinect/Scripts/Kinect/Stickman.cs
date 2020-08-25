@@ -43,6 +43,10 @@ public class Stickman : MonoBehaviour
         Tuple.Create(JointId.AnkleRight, JointId.FootRight),
     };
 
+    /// <summary>
+    /// Loads the specified body object to the current stickman.
+    /// </summary>
+    /// <param name="body">The body object to load.</param>
     public void Load(Body body)
     {
         if (body == null) return;

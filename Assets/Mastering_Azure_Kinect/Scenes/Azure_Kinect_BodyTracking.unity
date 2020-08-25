@@ -174,8 +174,6 @@ MonoBehaviour:
     _disableStreamingIndicator: 0
     _trackerProcessingMode: 0
     _sensorOrientation: 0
-  _stickmanPrefab: {fileID: 8480341903252375064, guid: 266a3ebca00bb7743adbb8a8718d3e35,
-    type: 3}
 --- !u!1 &1524556662
 GameObject:
   m_ObjectHideFlags: 0

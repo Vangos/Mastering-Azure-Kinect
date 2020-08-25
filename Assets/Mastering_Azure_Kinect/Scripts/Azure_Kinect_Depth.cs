@@ -1,9 +1,5 @@
-﻿using System.Linq;
-using System.Runtime.InteropServices;
-using Microsoft.Azure.Kinect.Sensor;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
-using Image = Microsoft.Azure.Kinect.Sensor.Image;
 
 public class Azure_Kinect_Depth : MonoBehaviour
 {
