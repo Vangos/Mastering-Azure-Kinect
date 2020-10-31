@@ -158,6 +158,8 @@ MonoBehaviour:
     _wiredSyncMode: 0
     _synchronizedImagesOnly: 1
     _disableStreamingIndicator: 0
+    _trackerProcessingMode: 0
+    _sensorOrientation: 0
   _image: {fileID: 2032744906}
   _visualization: 1
   _maxDepth: 6000
@@ -169,7 +171,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1121890310}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 234.3888, y: 203.9494, z: -101.18142}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

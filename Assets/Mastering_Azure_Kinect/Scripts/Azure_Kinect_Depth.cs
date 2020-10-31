@@ -54,7 +54,7 @@ public class Azure_Kinect_Depth : MonoBehaviour
     private byte[] Gray(ushort[] data)
     {
         const int channels = 3; // RGB has 3 channels.
-        const int maxByte = byte.MaxValue;
+        const byte maxByte = byte.MaxValue; // 255
 
         byte[] pixels = new byte[data.Length * channels];
 
@@ -78,12 +78,12 @@ public class Azure_Kinect_Depth : MonoBehaviour
     private byte[] Jet(ushort[] data)
     {
         const int channels = 3; // RGB has 3 channels.
-        const int maxByte = 255;
+        const byte maxByte = byte.MaxValue; // 255
+
+        byte[] pixels = new byte[data.Length * channels];
 
         float min = -1.0f;
         float max = 1.0f;
-
-        byte[] pixels = new byte[data.Length * channels];
 
         for (int i = 0; i < data.Length; i++)
         {
