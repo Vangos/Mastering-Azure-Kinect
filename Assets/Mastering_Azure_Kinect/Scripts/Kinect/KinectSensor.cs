@@ -142,21 +142,28 @@ public class KinectSensor
                         byte[] colorData = MemoryMarshal.AsBytes(color.Memory.Span).ToArray();
                         ushort[] depthData = MemoryMarshal.Cast<byte, ushort>(depth.Memory.Span).ToArray();
                         byte[] bodyIndexData = null;
-                        List<Body> bodyData = null;
+                        List<Skeleton> bodyData = null;
                         ImuSample imuSample = _device.GetImuSample();
 
                         _tracker.EnqueueCapture(capture);
 
                         using (Frame bodyFrame = _tracker.PopResult(TimeSpan.Zero, false))
                         {
-                            if (bodyFrame != null)
+                            if (bodyFrame != null && bodyFrame.NumberOfBodies > 0)
                             {
+                                bodyData = new List<Skeleton>();
+
+                                for (uint i = 0; i < bodyFrame.NumberOfBodies; i++)
+                                {
+                                    Skeleton skeleton = bodyFrame.GetBodySkeleton(i);
+
+                                    bodyData.Add(skeleton);
+                                }
+
                                 using (Image bodyIndex = bodyFrame.BodyIndexMap)
                                 {
                                     bodyIndexData = MemoryMarshal.AsBytes(bodyIndex.Memory.Span).ToArray();
                                 }
-
-                                bodyData = Body.Create(bodyFrame);
                             }
                         }
 

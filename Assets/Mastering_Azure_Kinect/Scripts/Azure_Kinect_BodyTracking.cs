@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
+using Microsoft.Azure.Kinect.BodyTracking;
 using UnityEngine;
 
 public class Azure_Kinect_BodyTracking : MonoBehaviour
 {
     [SerializeField] private KinectConfiguration _configuration;
 
+    private readonly List<Stickman> _stickmen = new List<Stickman>();
     private readonly KinectSensor _kinect = new KinectSensor();
-    private List<Stickman> _stickmen = new List<Stickman>();
 
     private void Start()
     {
@@ -19,9 +20,11 @@ public class Azure_Kinect_BodyTracking : MonoBehaviour
 
         KinectData frameData = _kinect.Update();
 
-        if (frameData?.Bodies != null && frameData.Bodies.Count > 0)
+        if (frameData != null)
         {
-            UpdateStickmen(frameData.Bodies);
+            List<Skeleton> bodies = frameData.Bodies;
+
+            UpdateStickmen(bodies);
         }
     }
 
@@ -30,19 +33,11 @@ public class Azure_Kinect_BodyTracking : MonoBehaviour
         _kinect.Stop();
     }
 
-    private void UpdateStickmen(List<Body> bodies)
+    private void UpdateStickmen(List<Skeleton> skeletons)
     {
-        if (bodies == null)
-        {
-            return;
-        }
+        if (skeletons == null) return;
 
-        if (_stickmen == null)
-        {
-            _stickmen = new List<Stickman>();
-        }
-
-        if (_stickmen.Count != bodies.Count)
+        if (_stickmen.Count != skeletons.Count)
         {
             foreach (Stickman stickman in _stickmen)
             {
@@ -51,16 +46,16 @@ public class Azure_Kinect_BodyTracking : MonoBehaviour
 
             _stickmen.Clear();
 
-            foreach (Body body in bodies)
+            foreach (Skeleton body in skeletons)
             {
                 Stickman stickman = (Instantiate(Resources.Load("Stickman")) as GameObject)?.GetComponent<Stickman>();
                 _stickmen.Add(stickman);
             }
         }
 
-        for (int i = 0; i < bodies.Count; i++)
+        for (int i = 0; i < skeletons.Count; i++)
         {
-            _stickmen[i].Load(bodies[i]);
+            _stickmen[i].Load(skeletons[i]);
         }
     }
 }

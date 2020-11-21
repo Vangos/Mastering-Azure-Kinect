@@ -19,8 +19,8 @@ public class KinectConfiguration
     [SerializeField] private bool _disableStreamingIndicator = false;
 
     [Header("Body Tracking SDK")]
-    [SerializeField] private TrackerProcessingMode _trackerProcessingMode = TrackerProcessingMode.Gpu;
-    [SerializeField] private SensorOrientation _sensorOrientation = SensorOrientation.Default;
+[SerializeField] private TrackerProcessingMode _trackerProcessingMode = TrackerProcessingMode.Gpu;
+[SerializeField] private SensorOrientation _sensorOrientation = SensorOrientation.Default;
 
     /// <summary>
     /// The desired frame rate of the camera.

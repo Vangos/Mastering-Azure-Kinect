@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Azure.Kinect.BodyTracking;
 using Microsoft.Azure.Kinect.Sensor;
 
 /// <summary>
@@ -40,5 +41,5 @@ public class KinectData
     /// <summary>
     /// The body data.
     /// </summary>
-    public List<Body> Bodies { get; set; }
+    public List<Skeleton> Bodies { get; set; }
 }

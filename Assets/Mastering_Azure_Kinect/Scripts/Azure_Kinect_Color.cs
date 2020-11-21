@@ -8,11 +8,11 @@ public class Azure_Kinect_Color : MonoBehaviour
 
     private Texture2D _texture;
 
-    private readonly KinectSensor _dataProvider = new KinectSensor();
+    private readonly KinectSensor _kinect = new KinectSensor();
 
     private void Start()
     {
-        _dataProvider.Start(_configuration);
+        _kinect.Start(_configuration);
 
         _texture = new Texture2D(1, 1, TextureFormat.RGB24, false);
         _image.texture = _texture;
@@ -20,9 +20,9 @@ public class Azure_Kinect_Color : MonoBehaviour
 
     private void Update()
     {
-        if (!_dataProvider.IsRunning) return;
+        if (!_kinect.IsRunning) return;
 
-        KinectData frameData = _dataProvider.Update();
+        KinectData frameData = _kinect.Update();
 
         if (frameData != null)
         {
@@ -34,6 +34,6 @@ public class Azure_Kinect_Color : MonoBehaviour
 
     private void OnDestroy()
     {
-        _dataProvider.Stop();
+        _kinect.Stop();
     }
 }

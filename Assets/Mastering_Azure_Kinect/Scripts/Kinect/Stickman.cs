@@ -47,16 +47,14 @@ public class Stickman : MonoBehaviour
     /// Loads the specified body object to the current stickman.
     /// </summary>
     /// <param name="body">The body object to load.</param>
-    public void Load(Body body)
+    public void Load(Skeleton body)
     {
-        if (body == null) return;
-
         for (int i = 0; i < _cubes.Length; i++)
         {
-            Joint joint = body.Joints[(JointId) i];
+            var joint = body.GetJoint((JointId) i);
 
-            Vector3 position = new Vector3(joint.Position.x, -joint.Position.y, joint.Position.z);
-            Quaternion orientation = joint.Orientation;
+            Vector3 position = new Vector3(joint.Position.X / 1000.0f, -joint.Position.Y / 1000.0f, joint.Position.Z / 1000.0f);
+            Quaternion orientation = new Quaternion(joint.Quaternion.X, joint.Quaternion.Y, joint.Quaternion.Z, joint.Quaternion.W);
 
             _cubes[i].position = position;
             _cubes[i].rotation = orientation;
@@ -64,11 +62,11 @@ public class Stickman : MonoBehaviour
 
         for (int i = 0; i < _bones.Length; i++)
         {
-            Joint joint1 = body.Joints[_bones[i].Item1];
-            Joint joint2 = body.Joints[_bones[i].Item2];
+            var joint1 = body.GetJoint(_bones[i].Item1);
+            var joint2 = body.GetJoint(_bones[i].Item2);
 
-            Vector3 position1 = new Vector3(joint1.Position.x, -joint1.Position.y, joint1.Position.z);
-            Vector3 position2 = new Vector3(joint2.Position.x, -joint2.Position.y, joint2.Position.z);
+            Vector3 position1 = new Vector3(joint1.Position.X / 1000.0f, -joint1.Position.Y / 1000.0f, joint1.Position.Z / 1000.0f);
+            Vector3 position2 = new Vector3(joint2.Position.X / 1000.0f, -joint2.Position.Y / 1000.0f, joint2.Position.Z / 1000.0f);
 
             _lines[i].SetPosition(0, position1);
             _lines[i].SetPosition(1, position2);

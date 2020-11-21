@@ -164,7 +164,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58a7b83d0b97e4747aef15ed069ecfa7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _configuration:
+  configuration:
     _cameraFps: 2
     _colorFormat: 0
     _colorResolution: 2
