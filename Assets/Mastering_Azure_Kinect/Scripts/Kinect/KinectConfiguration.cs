@@ -10,6 +10,7 @@ using UnityEngine;
 public class KinectConfiguration
 {
     [Header("Sensor SDK")]
+    [SerializeField] [Range(0, 10)] private int _deviceIndex = 0;
     [SerializeField] private FPS _cameraFps = FPS.FPS30;
     [SerializeField] private ImageFormat _colorFormat = ImageFormat.ColorMJPG;
     [SerializeField] private ColorResolution _colorResolution = ColorResolution.R1080p;
@@ -19,8 +20,13 @@ public class KinectConfiguration
     [SerializeField] private bool _disableStreamingIndicator = false;
 
     [Header("Body Tracking SDK")]
-[SerializeField] private TrackerProcessingMode _trackerProcessingMode = TrackerProcessingMode.Gpu;
-[SerializeField] private SensorOrientation _sensorOrientation = SensorOrientation.Default;
+    [SerializeField] private TrackerProcessingMode _trackerProcessingMode = TrackerProcessingMode.Gpu;
+    [SerializeField] private SensorOrientation _sensorOrientation = SensorOrientation.Default;
+
+    /// <summary>
+    /// The index of the Kinect device to access.
+    /// </summary>
+    public int DeviceIndex => _deviceIndex;
 
     /// <summary>
     /// The desired frame rate of the camera.

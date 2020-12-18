@@ -33,8 +33,7 @@ public class KinectSensor
     /// Starts streaming.
     /// </summary>
     /// <param name="configuration">The Azure Kinect configuration.</param>
-    /// <param name="deviceIndex">The index of the Azure Kinect device to use.</param>
-    public void Start(KinectConfiguration configuration = null, int deviceIndex = 0)
+    public void Start(KinectConfiguration configuration = null)
     {
         _isRunning = false;
 
@@ -44,20 +43,15 @@ public class KinectSensor
             return;
         }
 
-        if (configuration == null)
-        {
-            configuration = KinectConfiguration.Default;
-            
-            Debug.Log("No configuration was provided. Using the default configuration.");
-        }
+        if (configuration == null) configuration = new KinectConfiguration();
 
         try
         {
-            _device = Device.Open(deviceIndex);
+            _device = Device.Open(configuration.DeviceIndex);
 
             if (_device == null)
             {
-                Debug.LogError($"Kinect sensor {deviceIndex} is not available.");
+                Debug.LogError($"Kinect sensor {configuration.DeviceIndex} is not available.");
                 return;
             }
 
