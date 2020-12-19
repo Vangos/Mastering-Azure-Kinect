@@ -109,10 +109,7 @@ public class KinectSensor
 
         lock (_lock)
         {
-            if (_frameData.Timestamp == _lastRequestedTimestamp)
-            {
-                return null;
-            }
+            if (_frameData.Timestamp == _lastRequestedTimestamp) return null;
 
             _lastRequestedTimestamp = _frameData.Timestamp;
 
