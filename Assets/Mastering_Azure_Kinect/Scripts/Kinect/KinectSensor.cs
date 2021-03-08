@@ -30,6 +30,11 @@ public class KinectSensor
     public Device Device => _device;
 
     /// <summary>
+    /// The coordinate mapper.
+    /// </summary>
+    public CoordinateMapper CoordinateMapper { get; internal set; }
+
+    /// <summary>
     /// Starts streaming.
     /// </summary>
     /// <param name="configuration">The Azure Kinect configuration.</param>
@@ -67,7 +72,11 @@ public class KinectSensor
             });
             _device.StartImu();
 
-            _tracker = Tracker.Create(_device.GetCalibration(), new TrackerConfiguration
+            Calibration calibration = _device.GetCalibration();
+
+            CoordinateMapper = new CoordinateMapper(calibration);
+
+            _tracker = Tracker.Create(calibration, new TrackerConfiguration
             {
                 ProcessingMode = configuration.TrackerProcessingMode,
                 SensorOrientation = configuration.SensorOrientation
@@ -129,6 +138,8 @@ public class KinectSensor
                     using (Image color = capture.Color)
                     using (Image depth = capture.Depth)
                     {
+                        CoordinateMapper.Update(capture);
+
                         DateTime timestamp = DateTime.FromBinary(depth.SystemTimestampNsec);
                         byte[] colorData = MemoryMarshal.AsBytes(color.Memory.Span).ToArray();
                         ushort[] depthData = MemoryMarshal.Cast<byte, ushort>(depth.Memory.Span).ToArray();
