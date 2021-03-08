@@ -490,6 +490,9 @@ MonoBehaviour:
     _trackerProcessingMode: 0
     _sensorOrientation: 0
   _image: {fileID: 1154010773}
+  _canvas: {fileID: 941643340}
+  _detectedObjectPrefab: {fileID: 2456403729287757914, guid: 680533e22c46b644b8f879166347f829,
+    type: 3}
 --- !u!4 &1822323537
 Transform:
   m_ObjectHideFlags: 0
