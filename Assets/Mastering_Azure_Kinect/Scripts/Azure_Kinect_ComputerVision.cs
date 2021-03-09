@@ -109,13 +109,12 @@ public class Azure_Kinect_ComputerVision : MonoBehaviour
                     int centerX = rect.X + rect.W / 2;
                     int centerY = rect.Y + rect.H / 2;
 
+                    string title = item.ObjectProperty;
                     Vector2 center = new Vector2(centerX, centerY);
                     Vector2 size = new Vector2(rect.W, rect.H);
                     Vector3 position = _kinect.CoordinateMapper.MapColorToWorld(center);
 
-                    Debug.Log(position);
-
-                    rectangle.Load(item.ObjectProperty, center, size, position);
+                    rectangle.Load(title, center, size, position);
                 }
             }
 
