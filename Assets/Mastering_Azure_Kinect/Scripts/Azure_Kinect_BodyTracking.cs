@@ -19,13 +19,6 @@ public class Azure_Kinect_BodyTracking : MonoBehaviour
         if (!_kinect.IsRunning) return;
 
         KinectData frameData = _kinect.Update();
-
-        if (frameData != null)
-        {
-            List<Skeleton> bodies = frameData.Bodies;
-
-            UpdateStickmen(bodies);
-        }
     }
 
     private void OnDestroy()

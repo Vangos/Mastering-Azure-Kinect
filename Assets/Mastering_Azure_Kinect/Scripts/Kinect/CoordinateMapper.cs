@@ -1,54 +1,34 @@
-﻿using System.Numerics;
+﻿using System;
 using System.Runtime.InteropServices;
+using UnityEngine;
 using Microsoft.Azure.Kinect.Sensor;
-using Vector3 = System.Numerics.Vector3;
 
 /// <summary>
 /// Provides transformations across the 2D and 3D space.
 /// </summary>
-public class CoordinateMapper
+public class CoordinateMapper : IDisposable
 {
     private readonly Transformation _transformation;
-    private Image _depthToColor;
-    private ushort[] _data;
+    private Calibration _calibration;
+    private Capture _capture;
 
-    /// <summary>
-    /// The native device calibration.
-    /// Source: https://microsoft.github.io/Azure-Kinect-Sensor-SDK/master/struct_microsoft_1_1_azure_1_1_kinect_1_1_sensor_1_1_calibration.html
-    /// </summary>
-    public Calibration Calibration { get; set; }
-
-    internal CoordinateMapper(Calibration calibration)
+    public CoordinateMapper(Calibration calibration)
     {
-        Calibration = calibration;
-
-        _transformation = Calibration.CreateTransformation();
+        _calibration = calibration;
+        _transformation = _calibration.CreateTransformation();
     }
 
-    internal void Update(Capture capture)
+    public void Update(Capture capture)
     {
-        _depthToColor = _transformation.DepthImageToColorCamera(capture);
-        _data = MemoryMarshal.Cast<byte, ushort>(_depthToColor.Memory.Span).ToArray();
+        _capture = capture;
     }
 
-    internal Image DepthToColor(Capture capture)
-    {
-        return _transformation.DepthImageToColorCamera(capture);
-    }
+    public Image DepthToColor =>
+        _transformation.DepthImageToColorCamera(_capture);
 
-    internal Image DepthToPointCloud(Image depth)
+    public void Dispose()
     {
-        return _transformation.DepthImageToPointCloud(depth);
-    }
-
-    internal Image ColorToDepth(Capture capture)
-    {
-        return _transformation.ColorImageToDepthCamera(capture);
-    }
-
-    internal void Release()
-    {
-        _depthToColor?.Dispose();
+        DepthToColor?.Dispose();
     }
 
     /// <summary>
@@ -56,27 +36,26 @@ public class CoordinateMapper
     /// </summary>
     /// <param name="point3D">The 3D world point.</param>
     /// <returns>The corresponding 2D color point.</returns>
-    public UnityEngine.Vector2 MapWorldToColor(UnityEngine.Vector3 point3D)
+    public Vector2 MapWorldToColor(Vector3 point3D)
     {
-        UnityEngine.Vector2 result = UnityEngine.Vector2.zero;
+        Vector2 point2D = Vector2.zero;
 
         try
         {
-            Vector3 source3D = new Vector3(point3D.x, point3D.y, point3D.z);
-            Vector2? source2D =
-                Calibration.TransformTo2D(source3D, CalibrationDeviceType.Depth, CalibrationDeviceType.Color);
+            var input = new System.Numerics.Vector3(point3D.x, point3D.y, point3D.z);
+            var output = _calibration.TransformTo2D(input, CalibrationDeviceType.Depth, CalibrationDeviceType.Color);
 
-            if (source2D.HasValue)
+            if (output.HasValue)
             {
-                result.Set(source2D.Value.X, source2D.Value.Y);
+                point2D.Set(output.Value.X, output.Value.Y);
             }
         }
         catch
         {
-            // Ignore - Color is OFF
+            // Ignore - Color is turned off
         }
 
-        return result;
+        return point2D;
     }
 
     /// <summary>
@@ -84,27 +63,26 @@ public class CoordinateMapper
     /// </summary>
     /// <param name="point3D">The 3D world point.</param>
     /// <returns>The corresponding 2D depth point.</returns>
-    public UnityEngine.Vector2 MapWorldToDepth(UnityEngine.Vector3 point3D)
+    public Vector2 MapWorldToDepth(Vector3 point3D)
     {
-        UnityEngine.Vector2 result = UnityEngine.Vector2.zero;
+        Vector2 point2D = Vector2.zero;
 
         try
         {
-            Vector3 source3D = new Vector3(point3D.x, point3D.y, point3D.z);
-            Vector2? source2D =
-                Calibration.TransformTo2D(source3D, CalibrationDeviceType.Depth, CalibrationDeviceType.Depth);
+            var input = new System.Numerics.Vector3(point3D.x, point3D.y, point3D.z);
+            var output = _calibration.TransformTo2D(input, CalibrationDeviceType.Depth, CalibrationDeviceType.Depth);
 
-            if (source2D.HasValue)
+            if (output.HasValue)
             {
-                result.Set(source2D.Value.X, source2D.Value.Y);
+                point2D.Set(output.Value.X, output.Value.Y);
             }
         }
         catch
         {
-            // Ignore - Depth is OFF
+            // Ignore - Depth is turned off
         }
 
-        return result;
+        return point2D;
     }
 
     /// <summary>
@@ -112,31 +90,31 @@ public class CoordinateMapper
     /// </summary>
     /// <param name="point2D">The 2D color point.</param>
     /// <returns>The corresponding 3D world point.</returns>
-    public UnityEngine.Vector3 MapColorToWorld(UnityEngine.Vector2 point2D)
+    public Vector3 MapColorToWorld(Vector2 point2D)
     {
-        int index = (int)point2D.y * _depthToColor.WidthPixels + (int)point2D.x;
+        ushort[] depthData = MemoryMarshal.Cast<byte, ushort>(DepthToColor.Memory.Span).ToArray();
 
-        ushort depth = _data[index];
+        int index = (int)point2D.y * DepthToColor.WidthPixels + (int)point2D.x;
+        ushort depth = depthData[index];
 
-        UnityEngine.Vector3 result = UnityEngine.Vector3.zero;
+        Vector3 point3D = Vector3.zero;
 
         try
         {
-            Vector2 source2D = new Vector2(point2D.x, point2D.y);
-            Vector3? source3D = Calibration.TransformTo3D(source2D, (float)depth, CalibrationDeviceType.Color,
-                CalibrationDeviceType.Depth);
+            var input = new System.Numerics.Vector2(point2D.x, point2D.y);
+            var output = _calibration.TransformTo3D(input, depth, CalibrationDeviceType.Color, CalibrationDeviceType.Depth);
 
-            if (source3D.HasValue)
+            if (output.HasValue)
             {
-                result.Set(source3D.Value.X / 1000.0f, source3D.Value.Y / 1000.0f, source3D.Value.Z / 1000.0f);
+                point3D.Set(output.Value.X, output.Value.Y, output.Value.Z);
             }
         }
         catch
         {
-            // Ignore
+            // Ignore - Color is turned off
         }
 
-        return result;
+        return point3D;
     }
 
     /// <summary>
@@ -145,26 +123,75 @@ public class CoordinateMapper
     /// <param name="point2D">The 2D depth point.</param>
     /// <param name="depth">The depth of the 2D point (in meters).</param>
     /// <returns>The corresponding 3D world point.</returns>
-    public UnityEngine.Vector3 MapDepthToWorld(UnityEngine.Vector2 point2D, float depth)
+    public Vector3 MapDepthToWorld(Vector2 point2D, float depth)
     {
-        UnityEngine.Vector3 result = UnityEngine.Vector3.zero;
+        Vector3 point3D = Vector3.zero;
 
         try
         {
-            Vector2 source2D = new Vector2(point2D.x, point2D.y);
-            Vector3? source3D = Calibration.TransformTo3D(source2D, depth, CalibrationDeviceType.Color,
+            var input = new System.Numerics.Vector2(point2D.x, point2D.y);
+            var output = _calibration.TransformTo3D(input, depth, CalibrationDeviceType.Color,
                 CalibrationDeviceType.Depth);
 
-            if (source3D.HasValue)
+            if (output.HasValue)
             {
-                result.Set(source3D.Value.X, source3D.Value.Y, source3D.Value.Z);
+                point3D.Set(output.Value.X, output.Value.Y, output.Value.Z);
             }
         }
         catch
         {
-            // Ignore
+            // Ignore - Depth is turned off
         }
 
-        return result;
+        return point3D;
+    }
+
+    public Vector2 MapColorToDepth(Vector2 pointColor)
+    {
+        ushort[] depthData = MemoryMarshal.Cast<byte, ushort>(DepthToColor.Memory.Span).ToArray();
+
+        int index = (int)pointColor.y * DepthToColor.WidthPixels + (int)pointColor.x;
+        ushort depth = depthData[index];
+
+        Vector2 pointDepth = Vector2.zero;
+
+        try
+        {
+            var input = new System.Numerics.Vector2(pointColor.x, pointColor.y);
+            var output = _calibration.TransformTo2D(input, depth, CalibrationDeviceType.Color, CalibrationDeviceType.Depth);
+
+            if (output.HasValue)
+            {
+                pointDepth.Set(output.Value.X, output.Value.Y);
+            }
+        }
+        catch
+        {
+            // Ignore - Color or Depth is turned off
+        }
+
+        return pointDepth;
+    }
+
+    public Vector2 MapDepthToColor(Vector2 pointDepth, float depth)
+    {
+        Vector2 pointColor = Vector2.zero;
+
+        try
+        {
+            var input = new System.Numerics.Vector2(pointDepth.x, pointDepth.y);
+            var output = _calibration.TransformTo2D(input, depth, CalibrationDeviceType.Depth, CalibrationDeviceType.Color);
+
+            if (output.HasValue)
+            {
+                pointColor.Set(output.Value.X, output.Value.Y);
+            }
+        }
+        catch
+        {
+            // Ignore - Color or Depth is turned off
+        }
+
+        return pointColor;
     }
 }

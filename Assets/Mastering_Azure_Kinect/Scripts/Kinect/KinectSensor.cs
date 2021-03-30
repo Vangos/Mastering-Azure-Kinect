@@ -99,6 +99,8 @@ public class KinectSensor
     {
         _isRunning = false;
 
+        CoordinateMapper?.Dispose();
+
         _tracker?.Shutdown();
         _tracker?.Dispose();
 
@@ -188,9 +190,9 @@ public class KinectSensor
                     }
                 }
             }
-            catch
+            catch (ObjectDisposedException)
             {
-                // Tried to access disposed objects. Ignore.
+                // Ignored - Tried to access a disposed object.
             }
         });
     }
