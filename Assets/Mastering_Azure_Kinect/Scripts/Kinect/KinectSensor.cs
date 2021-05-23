@@ -99,14 +99,21 @@ public class KinectSensor
     {
         _isRunning = false;
 
-        CoordinateMapper?.Dispose();
+        try
+        {
+            CoordinateMapper?.Dispose();
 
-        _tracker?.Shutdown();
-        _tracker?.Dispose();
+            _tracker?.Shutdown();
+            _tracker?.Dispose();
 
-        _device?.StopCameras();
-        _device?.StopImu();
-        _device?.Dispose();
+            _device?.StopCameras();
+            _device?.StopImu();
+            _device?.Dispose();
+        }
+        catch (ObjectDisposedException)
+        {
+            // Ignored - Tried to access a disposed object.
+        }
     }
 
     /// <summary>
@@ -145,9 +152,15 @@ public class KinectSensor
                         DateTime timestamp = DateTime.FromBinary(depth.SystemTimestampNsec);
                         byte[] colorData = MemoryMarshal.AsBytes(color.Memory.Span).ToArray();
                         ushort[] depthData = MemoryMarshal.Cast<byte, ushort>(depth.Memory.Span).ToArray();
+                        BGRA[] colorToDepthData = null;
                         byte[] bodyIndexData = null;
                         List<Skeleton> bodyData = null;
                         ImuSample imuSample = _device.GetImuSample();
+
+                        using (Image colorToDepthImage = CoordinateMapper.ColorToDepth)
+                        {
+                            colorToDepthData = colorToDepthImage.GetPixels<BGRA>().ToArray();
+                        }
 
                         _tracker.EnqueueCapture(capture);
 
@@ -177,6 +190,7 @@ public class KinectSensor
                             Temperature = capture.Temperature,
                             Color = colorData,
                             Depth = depthData,
+                            ColorToDepth = colorToDepthData,
                             BodyIndex = bodyIndexData,
                             Bodies = bodyData,
                             Imu = imuSample

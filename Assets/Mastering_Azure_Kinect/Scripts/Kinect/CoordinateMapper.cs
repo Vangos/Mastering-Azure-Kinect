@@ -23,11 +23,15 @@ public class CoordinateMapper : IDisposable
         _capture = capture;
     }
 
+    public Image ColorToDepth =>
+        _transformation.ColorImageToDepthCamera(_capture);
+
     public Image DepthToColor =>
         _transformation.DepthImageToColorCamera(_capture);
 
     public void Dispose()
     {
+        ColorToDepth?.Dispose();
         DepthToColor?.Dispose();
     }
 

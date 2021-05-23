@@ -29,6 +29,11 @@ public class KinectData
     public ushort[] Depth { get; set; }
 
     /// <summary>
+    /// The BGRA color data mapped to the depth frame.
+    /// </summary>
+    public BGRA[] ColorToDepth { get; set; }
+
+    /// <summary>
     /// The body-index data.
     /// </summary>
     public byte[] BodyIndex { get; set; }
