@@ -20,6 +20,7 @@ public class KinectConfiguration
     [SerializeField] private bool _disableStreamingIndicator = false;
 
     [Header("Body Tracking SDK")]
+    [SerializeField] private string _modelPath = "dnn_model_2_0_lite_op11.onnx";
     [SerializeField] private TrackerProcessingMode _trackerProcessingMode = TrackerProcessingMode.Gpu;
     [SerializeField] private SensorOrientation _sensorOrientation = SensorOrientation.Default;
 
@@ -63,6 +64,8 @@ public class KinectConfiguration
     /// Specifies whether the streaming light indicator of the device is disabled.
     /// </summary>
     public bool DisableStreamingIndicator => _disableStreamingIndicator;
+
+    public string ModelPath => _modelPath;
 
     /// <summary>
     /// Specifies the body-tracking processing mode (CPU/GPU).
